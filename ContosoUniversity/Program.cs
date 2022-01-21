@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using ContosoUniversity.Datas;
-using Microsoft.Extensions.DependencyInjection;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,17 +7,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 //add efcore
-IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-configurationBuilder.AddJsonFile("appsettings.json", false, false);
-IConfigurationRoot configuration = configurationBuilder.Build();
 builder.Services.AddDbContext<SchoolContext>(
     options => {
-        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+        options.UseSqlServer(
+            new ConfigurationManager()
+                .AddJsonFile("appsettings.json", false, false)
+                .Build()
+                .GetConnectionString("DefaultConnection"));
     }); 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 var app = builder.Build();
 
+//CreateDbIfNotExists(app);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
